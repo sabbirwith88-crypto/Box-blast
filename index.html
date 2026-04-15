@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>💥 BOX BLAST · 5 CLICKS · 3 ADS UNLOCK</title>
-    <!-- AdsGram SDK (blockId: int-24115) -->
+    <!-- AdsGram SDK (primary & secondary ads) -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <!-- Monetag SDK (zone: 10867497) -->
     <script src='//libtl.com/sdk.js' data-zone='10867497' data-sdk='show_10867497'></script>
-    <!-- Adexora SDK (App ID: 2025) -->
-    <script src="https://adexora.com/cdn/ads.js?id=2025"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -30,7 +28,6 @@
             padding: 16px;
         }
 
-        /* loading screen */
         .loading-screen {
             position: fixed;
             top: 0; left: 0;
@@ -72,7 +69,6 @@
             margin-top: 8px;
         }
 
-        /* main container */
         .game-container {
             width: 100%;
             max-width: 560px;
@@ -191,7 +187,6 @@
             color: #FFD700;
         }
 
-        /* Gameplay panel (5 clicks) */
         .game-panel {
             position: fixed;
             top: 0; left: 0;
@@ -284,7 +279,6 @@
             cursor: pointer;
         }
 
-        /* Ad modal (retry UI) */
         .ad-modal {
             position: fixed;
             top: 0; left: 0;
@@ -431,7 +425,6 @@
     <div class="footer-note">👉 Each level: tap all 5 "CLICK" buttons 👈</div>
 </div>
 
-<!-- Gameplay panel (5 click boxes) -->
 <div id="gameplayPanel" class="game-panel">
     <div class="game-card">
         <div class="game-level-title" id="gameLevelTitle">STAGE 1</div>
@@ -442,14 +435,12 @@
     </div>
 </div>
 
-<!-- Ad Modal (retry UI, same as boxtg style) -->
 <div id="adModal" class="ad-modal">
     <div class="modal-card">
         <div id="modalDynamicContent"></div>
     </div>
 </div>
 
-<!-- Victory screen -->
 <div id="victoryScreen" class="victory-screen">
     <div style="font-size: 4rem;">🏆</div>
     <h2 style="color:white">ALL STAGES CLEARED!</h2>
@@ -463,19 +454,18 @@
 <div id="toastMsg" class="toast-msg"></div>
 
 <script>
-    // ======================== AD CONFIG (from boxtg) ========================
+    // ======================== AD CONFIG (ONLY AdsGram + Monetag, 3 ads total) ========================
     const ADSGRAM_BLOCK = "int-24115";
     const MONETAG_ZONE = "10867497";
-    const ADEXORA_APP_ID = "2025";
-
+    
     let adsgramController = null;
     try {
         if (typeof window.Adsgram !== 'undefined') {
             adsgramController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK });
         }
     } catch(e) { console.warn("Adsgram init error", e); }
-
-    // Real ad functions (no simulation)
+    
+    // Real ad functions
     async function showRealAdsgram() {
         if (!adsgramController) return false;
         try {
@@ -483,6 +473,7 @@
             return !!(result && result.done);
         } catch(e) { return false; }
     }
+    
     async function showRealMonetag() {
         if (typeof window.show_10867497 === 'function') {
             try { await window.show_10867497(); return true; }
@@ -490,15 +481,8 @@
         }
         return false;
     }
-    async function showRealAdexora() {
-        if (typeof window.showAdexora === 'function') {
-            try { await window.showAdexora(); return true; }
-            catch(e) { return false; }
-        }
-        return false;
-    }
-
-    // Retry UI (exactly from boxtg pattern)
+    
+    // Retry UI: generic retry handler for any ad
     async function showAdWithRetry(adName, adFunction) {
         return new Promise((resolve) => {
             const modalContent = document.getElementById('modalDynamicContent');
@@ -525,7 +509,7 @@
             }).catch(() => renderRetry());
         });
     }
-
+    
     // ======================== GAME LOGIC ========================
     const TOTAL_LEVELS = 10;
     let unlockedLevels = [1];
@@ -533,25 +517,21 @@
     let currentPlayingLevel = null;
     let clickStates = [false, false, false, false, false];
     let isInAdFlow = false;
-    let currentFlowStep = 0;  // 0: Adsgram, 1: Monetag, 2: (Adexora or second Adsgram)
+    let currentFlowStep = 0;  // 0: Adsgram, 1: Monetag, 2: second Adsgram
     let pendingLevel = null;
-
+    
     function showToast(msg, duration=1800) {
         const toast = document.getElementById('toastMsg');
         toast.innerText = msg;
         toast.style.opacity = '1';
         setTimeout(() => toast.style.opacity = '0', duration);
     }
-
-    function isBreakLevel(level) {
-        return (level === 3 || level === 6 || level === 9);
-    }
-
+    
     function saveProgress() {
         localStorage.setItem('boxblast_unlocked', JSON.stringify(unlockedLevels));
         localStorage.setItem('boxblast_completed', JSON.stringify(completedLevels));
     }
-
+    
     function loadProgress() {
         const savedUnlocked = localStorage.getItem('boxblast_unlocked');
         const savedCompleted = localStorage.getItem('boxblast_completed');
@@ -566,7 +546,7 @@
         completedLevels = [...new Set(completedLevels.filter(l => l>=1 && l<=TOTAL_LEVELS))];
         if (!unlockedLevels.includes(1)) unlockedLevels.push(1);
     }
-
+    
     function renderLevels() {
         const container = document.getElementById('levelContainer');
         if (!container) return;
@@ -606,26 +586,25 @@
             container.appendChild(groupDiv);
         }
     }
-
-    // ======================== AD FLOW (3 ads with break pattern) ========================
+    
+    // ============ 3-AD FLOW: AdsGram (1) -> Monetag (2) -> AdsGram (3) ============
     const adModal = document.getElementById('adModal');
     const modalDynamic = document.getElementById('modalDynamicContent');
-
+    
     function closeAdModal() {
         adModal.classList.remove('active');
         isInAdFlow = false;
         currentFlowStep = 0;
         pendingLevel = null;
     }
-
+    
+    // Universal step renderer: step0 = first Adsgram, step1 = Monetag, step2 = second Adsgram
     function showModalStep(stepIndex) {
-        const level = pendingLevel;
-        const needAdexora = !isBreakLevel(level);
         if (stepIndex === 0) {
             modalDynamic.innerHTML = `
                 <div><i class="fas fa-ad ad-icon-large"></i></div>
                 <h3 style="color:#FFD700;">AdsGram Ad (1/3)</h3>
-                <p>Watch to continue</p>
+                <p>Watch to unlock stage</p>
                 <button id="stepAdBtn" class="btn-modal">📺 WATCH ADSGRAM</button>
             `;
             const btn = document.getElementById('stepAdBtn');
@@ -650,46 +629,31 @@
             };
         }
         else if (stepIndex === 2) {
-            if (needAdexora) {
-                modalDynamic.innerHTML = `
-                    <div><i class="fas fa-chart-line ad-icon-large" style="color:#4CAF50;"></i></div>
-                    <h3 style="color:#FFD700;">Adexora Ad (3/3)</h3>
-                    <p>Final ad before level</p>
-                    <button id="stepAdBtn" class="btn-modal">▶️ SHOW ADEXORA</button>
-                `;
-                const btn = document.getElementById('stepAdBtn');
-                btn.onclick = async () => {
-                    const success = await showAdWithRetry("Adexora", showRealAdexora);
-                    if (success) finishAdFlowAndStartGame();
-                    else { closeAdModal(); showToast("Ad flow failed"); }
-                };
-            } else {
-                // break level: second Adsgram instead of Adexora
-                modalDynamic.innerHTML = `
-                    <div><i class="fas fa-ad ad-icon-large" style="color:#FF9800;"></i></div>
-                    <h3 style="color:#FFD700;">Extra AdsGram (3/3)</h3>
-                    <p>Double explosion mode</p>
-                    <button id="stepAdBtn" class="btn-modal">📺 SHOW SECOND ADSGRAM</button>
-                `;
-                const btn = document.getElementById('stepAdBtn');
-                btn.onclick = async () => {
-                    const success = await showAdWithRetry("AdsGram (2nd)", showRealAdsgram);
-                    if (success) finishAdFlowAndStartGame();
-                    else { closeAdModal(); showToast("Second Adsgram failed"); }
-                };
-            }
+            // Third ad: always AdsGram (replaces Adexora as requested)
+            modalDynamic.innerHTML = `
+                <div><i class="fas fa-ad ad-icon-large" style="color:#FF9800;"></i></div>
+                <h3 style="color:#FFD700;">AdsGram Ad (3/3)</h3>
+                <p>Final ad before detonation 💥</p>
+                <button id="stepAdBtn" class="btn-modal">📺 WATCH ADSGRAM</button>
+            `;
+            const btn = document.getElementById('stepAdBtn');
+            btn.onclick = async () => {
+                const success = await showAdWithRetry("AdsGram (final)", showRealAdsgram);
+                if (success) finishAdFlowAndStartGame();
+                else { closeAdModal(); showToast("Final Adsgram failed"); }
+            };
         }
     }
-
+    
     async function finishAdFlowAndStartGame() {
         closeAdModal();
         if (!pendingLevel) return;
-        // start gameplay with 5 click buttons
+        // Start gameplay with 5 click buttons
         currentPlayingLevel = pendingLevel;
         clickStates = [false, false, false, false, false];
         openGameplayPanel();
     }
-
+    
     function startAdFlowForLevel(levelNum) {
         if (completedLevels.includes(levelNum)) {
             showToast("Stage already completed!");
@@ -706,20 +670,20 @@
         adModal.classList.add('active');
         showModalStep(0);
     }
-
+    
     // ======================== GAMEPLAY: 5 CLICK BUTTONS ========================
     const gameplayPanel = document.getElementById('gameplayPanel');
     const clicksGrid = document.getElementById('clicksGrid');
     const gameProgressSpan = document.getElementById('gameProgress');
     const gameLevelTitleSpan = document.getElementById('gameLevelTitle');
-
+    
     function openGameplayPanel() {
         if (!currentPlayingLevel) return;
         gameLevelTitleSpan.innerText = `💥 STAGE ${currentPlayingLevel} 💥`;
         renderClickButtons();
         gameplayPanel.classList.add('active');
     }
-
+    
     function renderClickButtons() {
         const clickedCount = clickStates.filter(v => v === true).length;
         gameProgressSpan.innerText = `${clickedCount} / 5 CLICKS`;
@@ -739,14 +703,13 @@
                 clickStates[i] = true;
                 renderClickButtons();
                 if (clickStates.every(v => v === true)) {
-                    // level completed!
                     completeLevelAndUnlockNext();
                 }
             };
             clicksGrid.appendChild(btn);
         }
     }
-
+    
     async function completeLevelAndUnlockNext() {
         const levelCompleted = currentPlayingLevel;
         if (completedLevels.includes(levelCompleted)) {
@@ -771,23 +734,23 @@
         saveProgress();
         renderLevels();
         closeGameplayPanel();
-
+        
         if (levelCompleted === TOTAL_LEVELS) {
             showVictoryReward();
         }
     }
-
+    
     function closeGameplayPanel() {
         gameplayPanel.classList.remove('active');
         currentPlayingLevel = null;
     }
-
+    
     function showVictoryReward() {
         const code = `BLAST-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
         document.getElementById('rewardCodeDisplay').innerText = code;
         document.getElementById('victoryScreen').classList.add('active');
     }
-
+    
     function fullReset() {
         unlockedLevels = [1];
         completedLevels = [];
@@ -798,8 +761,7 @@
         document.getElementById('victoryScreen').classList.remove('active');
         showToast("Game reset! Stage 1 unlocked.");
     }
-
-    // copy & reset from victory screen
+    
     function copyAndReset() {
         const code = document.getElementById('rewardCodeDisplay').innerText;
         navigator.clipboard.writeText(code).then(() => {
@@ -809,7 +771,7 @@
             fullReset();
         });
     }
-
+    
     // ======================== LOADING & INIT ========================
     let loadProgressVal = 0;
     const loadingInterval = setInterval(() => {
@@ -825,8 +787,7 @@
         document.getElementById('loadingBar').style.width = Math.min(100, loadProgressVal) + '%';
         document.getElementById('loadingPercent').innerText = Math.floor(Math.min(100, loadProgressVal)) + '%';
     }, 80);
-
-    // Event binding
+    
     document.addEventListener('DOMContentLoaded', () => {
         loadProgress();
         renderLevels();
@@ -837,7 +798,6 @@
             if (confirm("⚠️ Reset all progress? You'll start from Stage 1.")) fullReset();
         });
         document.getElementById('copyAndResetBtn').addEventListener('click', copyAndReset);
-        // close modal on outside click? optional
         adModal.addEventListener('click', (e) => {
             if (e.target === adModal) {
                 closeAdModal();
