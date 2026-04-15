@@ -2,327 +2,849 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Block Blast - 20 Level Victory</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Adsgram SDK (kept as original for interstitials) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>💥 BOX BLAST · 5 CLICKS · 3 ADS UNLOCK</title>
+    <!-- AdsGram SDK (blockId: int-24115) -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <!-- Monetag SDK (zone: 10867497) -->
+    <script src='//libtl.com/sdk.js' data-zone='10867497' data-sdk='show_10867497'></script>
+    <!-- Adexora SDK (App ID: 2025) -->
+    <script src="https://adexora.com/cdn/ads.js?id=2025"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-        
-        /* Loading Screen */
-        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s; }
-        .loading-logo { font-size: 3.5rem; font-weight: 800; background: linear-gradient(to right, #FFD700, #FFA500, #FF8C00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .loading-bar-container { width: 80%; max-width: 400px; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin: 20px 0; }
-        .loading-bar { height: 100%; width: 0%; background: linear-gradient(to right, #FF416C, #FF4B2B); transition: width 0.3s; }
-        .loading-percentage, .loading-text { color: white; text-align: center; margin: 5px; }
-        
-        /* Main Screens */
-        .screen { width: 100%; max-width: 500px; background: rgba(255,255,255,0.08); backdrop-filter: blur(15px); border-radius: 25px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; position: relative; }
-        .game-title { font-size: 2.5rem; background: linear-gradient(to right, #FFD700, #FFA500, #FF8C00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; margin-bottom: 15px; }
-        .btn { padding: 14px 25px; border: none; border-radius: 50px; background: linear-gradient(to right, #FF416C, #FF4B2B); color: white; font-weight: bold; cursor: pointer; width: 90%; max-width: 280px; margin: 6px; transition: 0.3s; box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
-        .btn-level { background: linear-gradient(to right, #36D1DC, #5B86E5); }
-        .btn-back { background: linear-gradient(to right, #8e9eab, #eef2f3); color: #333; }
-        .btn-ai { background: linear-gradient(to right, #9C27B0, #6A1B9A); }
-        .btn-record { background: linear-gradient(to right, #FF9800, #F57C00); }
-        
-        /* Game Board */
-        .game-board { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; width: 100%; max-width: 350px; aspect-ratio: 1/1; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 8px; margin: 15px 0; }
-        .cell { background: rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer; transition: 0.1s; }
-        .cell.selected { box-shadow: 0 0 0 2px white, 0 0 10px rgba(255,255,255,0.7); animation: pulse 1s infinite; }
-        .cell.color-1 { background: linear-gradient(135deg, #FF5252, #B33939); }
-        .cell.color-2 { background: linear-gradient(135deg, #FF9800, #CC7A00); }
-        .cell.color-3 { background: linear-gradient(135deg, #FFEB3B, #B2A429); }
-        .cell.color-4 { background: linear-gradient(135deg, #4CAF50, #357A38); }
-        .cell.color-5 { background: linear-gradient(135deg, #2196F3, #0B5F9E); }
-        .cell.color-6 { background: linear-gradient(135deg, #9C27B0, #6A1B9A); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 2px white; } 50% { box-shadow: 0 0 0 3px white; } 100% { box-shadow: 0 0 0 2px white; } }
-        .blast-animation { animation: blast 0.4s ease-out forwards; }
-        @keyframes blast { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
-        .combo { position: absolute; font-size: 1.5rem; font-weight: bold; color: #FFD700; text-shadow: 0 0 5px black; animation: fadeUp 1s forwards; pointer-events: none; z-index: 20; }
-        @keyframes fadeUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
-        
-        /* Headers */
-        .game-header { display: flex; justify-content: space-between; width: 100%; gap: 8px; margin-bottom: 10px; }
-        .header-item { background: rgba(0,0,0,0.5); padding: 8px; border-radius: 12px; text-align: center; flex: 1; color: white; }
-        .powerups { display: flex; justify-content: space-between; width: 100%; gap: 10px; margin-bottom: 10px; }
-        .powerup { background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 20px; color: white; font-size: 0.8rem; }
-        .controls { display: flex; gap: 8px; width: 100%; flex-wrap: wrap; justify-content: center; }
-        .btn-control { padding: 8px 12px; font-size: 0.8rem; flex: 1; margin: 0; }
-        
-        /* Popups */
-        .game-over, .level-complete { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 25px; border-radius: 20px; text-align: center; z-index: 200; width: 90%; max-width: 350px; display: none; flex-direction: column; gap: 15px; border: 2px solid gold; }
-        
-        /* ========== IMPROVED LEVEL SELECTION DESIGN ========== */
-        .level-container { max-height: 450px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; gap: 20px; padding: 5px; }
-        .level-group { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 15px; backdrop-filter: blur(5px); border: 1px solid rgba(255,215,0,0.3); transition: transform 0.2s; }
-        .level-group:hover { transform: scale(1.01); background: rgba(0,0,0,0.4); }
-        .group-title { font-size: 1.3rem; font-weight: bold; text-align: center; margin-bottom: 12px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
-        .level-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-        .btn-level-small { padding: 12px 16px; font-size: 1rem; font-weight: bold; min-width: 65px; border-radius: 16px; background: linear-gradient(145deg, #2c3e66, #1a2a4a); box-shadow: 0 6px 0 #0f1420; transition: all 0.1s ease; position: relative; overflow: hidden; border: 1px solid rgba(255,215,0,0.4); }
-        .btn-level-small:active { transform: translateY(3px); box-shadow: 0 3px 0 #0f1420; }
-        .btn-level-small.locked { opacity: 0.6; filter: grayscale(0.3); background: linear-gradient(145deg, #3a3a4a, #2a2a3a); box-shadow: 0 6px 0 #1a1a2a; cursor: not-allowed; transform: none; }
-        .lock-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem; color: #FFD700; text-shadow: 0 0 3px black; }
-        .level-badge { font-size: 0.7rem; position: absolute; bottom: 2px; right: 6px; color: #FFD700; font-weight: bold; }
-        
-        /* Scrollbar */
-        .level-container::-webkit-scrollbar { width: 6px; }
-        .level-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-        .level-container::-webkit-scrollbar-thumb { background: linear-gradient(#FFD700, #FFA500); border-radius: 10px; }
-        
-        .sound-toggle { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; cursor: pointer; z-index: 10; font-size: 1.2rem; }
-        .victory-icon { font-size: 4rem; color: #FFD700; animation: bounce 1s infinite; }
-        @keyframes bounce { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-15px); } }
-        .code-container { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 15px; margin: 15px; text-align: center; border: 2px solid #FFD700; }
-        .code-value { font-size: 1.8rem; letter-spacing: 4px; font-family: monospace; background: #00000080; padding: 10px; border-radius: 10px; margin: 10px 0; }
-        .btn-copy { background: #4CAF50; padding: 12px; border-radius: 30px; border: none; color: white; font-weight: bold; width: 100%; cursor: pointer; }
-        .record-list { width: 100%; max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px; margin: 10px 0; }
-        .record-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; }
-        #networkErrorScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: #0f0c29; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; }
-        @media (max-width: 500px) { .game-board { max-width: 100%; } .btn-level-small { padding: 8px 12px; min-width: 55px; font-size: 0.9rem; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0f0c29, #1a1a3a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* loading screen */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(145deg, #0a0a1a, #12122f);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2100;
+            transition: opacity 0.4s;
+        }
+        .loading-logo {
+            font-size: 2.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .loading-bar-container {
+            width: 70%;
+            max-width: 280px;
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            margin: 20px;
+            overflow: hidden;
+        }
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FFB347, #FF6B00);
+            transition: width 0.2s;
+        }
+        .loading-percent {
+            color: #FFD966;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        /* main container */
+        .game-container {
+            width: 100%;
+            max-width: 560px;
+            background: rgba(10, 20, 35, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 56px;
+            padding: 20px 18px 24px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,200,0.1);
+            border: 1px solid rgba(255, 200, 80, 0.5);
+        }
+
+        .blast-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFE6B0, #FFA559);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        .sub {
+            font-size: 0.7rem;
+            color: #FFD966;
+            background: #00000066;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 40px;
+            margin-top: 8px;
+        }
+        .level-scroll {
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 8px 4px;
+            margin: 12px 0;
+            scrollbar-width: thin;
+        }
+        .level-group {
+            background: rgba(0,0,0,0.4);
+            border-radius: 36px;
+            padding: 16px 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,180,60,0.5);
+        }
+        .group-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 14px;
+            color: #FFD966;
+        }
+        .level-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+        }
+        .level-btn {
+            padding: 14px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-width: 70px;
+            border-radius: 28px;
+            background: linear-gradient(145deg, #2c3e66, #1a2a4a);
+            box-shadow: 0 7px 0 #0f1420;
+            transition: 0.07s linear;
+            border: 1px solid rgba(255,215,0,0.5);
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+        }
+        .level-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #0f1420;
+        }
+        .level-btn.locked {
+            opacity: 0.55;
+            filter: grayscale(0.4);
+            background: linear-gradient(145deg, #3a3a4a, #2a2a3a);
+            cursor: not-allowed;
+            transform: none;
+            pointer-events: none;
+        }
+        .level-btn.completed {
+            background: linear-gradient(145deg, #2e7d32, #1b5e20);
+            border-color: #FFD700;
+            cursor: default;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        .check-icon {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: #4caf50;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: 1px solid gold;
+        }
+        .lock-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.3rem;
+            color: #FFD700;
+        }
+
+        /* Gameplay panel (5 clicks) */
+        .game-panel {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.96);
+            backdrop-filter: blur(20px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .game-panel.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .game-card {
+            background: linear-gradient(145deg, #1e2a2f, #0f1a1f);
+            border-radius: 56px;
+            padding: 28px 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid #FFB347;
+            box-shadow: 0 30px 40px rgba(0,0,0,0.6);
+        }
+        .game-level-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #FFD966;
+            text-shadow: 2px 2px 0 #7a3e00;
+            margin-bottom: 16px;
+        }
+        .instruction {
+            background: #000000aa;
+            border-radius: 40px;
+            padding: 12px;
+            color: #FFD966;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+        .progress-box {
+            background: #00000099;
+            border-radius: 60px;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FFD966;
+            margin: 16px 0;
+        }
+        .clicks-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin: 24px 0;
+        }
+        .click-btn {
+            background: linear-gradient(135deg, #FFA559, #FF6B00);
+            border: none;
+            padding: 18px 0;
+            font-size: 1.3rem;
+            font-weight: 800;
+            border-radius: 60px;
+            color: #2c1a00;
+            cursor: pointer;
+            transition: 0.05s linear;
+            box-shadow: 0 6px 0 #9b4a00;
+            text-align: center;
+        }
+        .click-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #9b4a00;
+        }
+        .click-btn.disabled {
+            opacity: 0.6;
+            transform: translateY(0);
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+        .close-game-btn {
+            background: #2a2a2a;
+            color: #FFB347;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+
+        /* Ad modal (retry UI) */
+        .ad-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.96);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .ad-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-card {
+            background: linear-gradient(145deg, #1e1a3a, #0f0c2c);
+            width: 90%;
+            max-width: 380px;
+            border-radius: 48px;
+            padding: 28px 20px;
+            text-align: center;
+            border: 2px solid #FFD700;
+        }
+        .ad-icon-large {
+            font-size: 3rem;
+            color: #FF9800;
+            margin-bottom: 12px;
+        }
+        .btn-modal {
+            background: linear-gradient(95deg, #FF416C, #FF4B2B);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            width: 80%;
+            margin: 10px auto;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .countdown-circle {
+            font-size: 2.2rem;
+            font-weight: bold;
+            background: #000000aa;
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            border-radius: 50%;
+            margin: 12px auto;
+            color: #FFD700;
+        }
+        .victory-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f0c29, #302b63);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .victory-screen.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .code-container {
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 28px;
+            margin: 20px;
+            border: 2px solid #FFD700;
+        }
+        .code-value {
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            background: #000000aa;
+            padding: 12px;
+            border-radius: 20px;
+            margin: 12px 0;
+            color: #FFD700;
+            font-family: monospace;
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000000cc;
+            color: #FFD700;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 6000;
+            pointer-events: none;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .reset-progress {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #ff9800;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            margin-top: 18px;
+            text-align: center;
+            cursor: pointer;
+            color: white;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #FFD966aa;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
-    <div id="loadingScreen"><div class="loading-logo">BLOCK BLAST</div><div class="loading-percentage" id="loadingPercentage">0%</div><div class="loading-bar-container"><div class="loading-bar" id="loadingBar"></div></div><div class="loading-text">Loading...</div></div>
-    
-    <div id="networkErrorScreen"><i class="fas fa-wifi" style="font-size:4rem; color:#FF5252"></i><h2>No Internet</h2><button class="btn" id="retryBtn">Retry</button></div>
-    
-    <!-- Victory Screen -->
-    <div id="victoryCodeScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg,#0f0c29,#302b63); z-index:2000; flex-direction:column; justify-content:center; align-items:center;">
-        <div class="victory-icon"><i class="fas fa-trophy"></i></div>
-        <h2 style="color:white">CONGRATULATIONS!</h2>
-        <p style="color:white">You completed 20 levels!</p>
-        <div class="code-container">
-            <div style="color:#FFD700">VICTORY CODE</div>
-            <div class="code-value" id="victoryCodeDisplay">XXXX-XXXXX</div>
-            <button class="btn-copy" id="copyFinalCodeBtn"><i class="fas fa-copy"></i> COPY CODE</button>
-            <div id="copyMsg" style="color:#4CAF50; margin-top:10px; opacity:0">Copied! Game will reset.</div>
-        </div>
+
+<div id="loadingScreen" class="loading-screen">
+    <div class="loading-logo">💥 BOX BLAST 💥</div>
+    <div class="loading-bar-container"><div class="loading-bar" id="loadingBar"></div></div>
+    <div class="loading-percent" id="loadingPercent">0%</div>
+    <div style="color:#FFD966; font-size:12px;">Loading ads & stages...</div>
+</div>
+
+<div class="game-container" id="mainGameScreen" style="display: none;">
+    <div class="blast-header">
+        <div class="title">📦 BOX BLAST 🔥</div>
+        <div class="sub">⚡ 5 CLICKS PER STAGE · 3 ADS TO UNLOCK ⚡</div>
     </div>
+    <div class="level-scroll" id="levelContainer"></div>
+    <div class="reset-progress" id="resetAllBtn"><i class="fas fa-undo-alt"></i> Reset All Progress</div>
+    <div class="footer-note">👉 Each level: tap all 5 "CLICK" buttons 👈</div>
+</div>
 
-    <!-- Start Screen -->
-    <div class="screen" id="startScreen" style="display:none">
-        <button class="sound-toggle" id="soundToggle1"><i class="fas fa-volume-up"></i></button>
-        <h1 class="game-title">BLOCK BLAST</h1>
-        <div class="btn-container" style="width:100%">
-            <button class="btn" id="startGameBtn">START GAME</button>
-            <button class="btn btn-ai" id="aiGameBtn">PLAY WITH AI</button>
-            <button class="btn btn-record" id="recordModeMainBtn">RECORD MODE</button>
-        </div>
+<!-- Gameplay panel (5 click boxes) -->
+<div id="gameplayPanel" class="game-panel">
+    <div class="game-card">
+        <div class="game-level-title" id="gameLevelTitle">STAGE 1</div>
+        <div class="instruction">💣 CLICK ALL 5 BOXES TO DETONATE 💣</div>
+        <div class="progress-box" id="gameProgress">0 / 5 CLICKS</div>
+        <div class="clicks-grid" id="clicksGrid"></div>
+        <button class="close-game-btn" id="exitGameBtn">🏠 BACK TO MENU</button>
     </div>
+</div>
 
-    <!-- Game Mode Screen -->
-    <div class="screen" id="gameModeScreen" style="display:none">
-        <h2>SELECT MODE</h2>
-        <button class="btn btn-level" id="normalSelectBtn">NORMAL MODE</button>
-        <button class="btn btn-ai" id="aiSelectBtn">AI MODE</button>
-        <button class="btn btn-record" id="recordSelectBtn">RECORD MODE</button>
-        <button class="btn btn-back" id="backToStartModeBtn">BACK</button>
+<!-- Ad Modal (retry UI, same as boxtg style) -->
+<div id="adModal" class="ad-modal">
+    <div class="modal-card">
+        <div id="modalDynamicContent"></div>
     </div>
+</div>
 
-    <!-- AI Difficulty -->
-    <div class="screen" id="aiDifficultyScreen" style="display:none">
-        <h2>AI DIFFICULTY</h2>
-        <button class="btn" id="easyAiBtn">EASY</button>
-        <button class="btn" id="mediumAiBtn">MEDIUM</button>
-        <button class="btn" id="hardAiBtn">HARD</button>
-        <button class="btn btn-back" id="backToModeFromAiBtn">BACK</button>
+<!-- Victory screen -->
+<div id="victoryScreen" class="victory-screen">
+    <div style="font-size: 4rem;">🏆</div>
+    <h2 style="color:white">ALL STAGES CLEARED!</h2>
+    <p style="color:#FFD966">Your exclusive reward code</p>
+    <div class="code-container">
+        <div class="code-value" id="rewardCodeDisplay">BLAST-XXXX</div>
+        <button id="copyAndResetBtn" class="btn-modal" style="background:#FF8C00;">📋 COPY & RESET</button>
     </div>
+</div>
 
-    <!-- Record Screen -->
-    <div class="screen" id="recordScreen" style="display:none">
-        <h2>RECORD MODE</h2>
-        <div class="record-list" id="recordList"></div>
-        <button class="btn btn-record" id="startRecordModeBtn">START</button>
-        <button class="btn btn-back" id="backToStartRecordBtn">BACK</button>
-    </div>
+<div id="toastMsg" class="toast-msg"></div>
 
-    <!-- Level Selection (1-20) - BEAUTIFUL DESIGN -->
-    <div class="screen" id="levelScreen" style="display:none">
-        <h2 style="background: linear-gradient(135deg, #FFD700, #FF8C00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px;">🌟 CHOOSE YOUR PATH 🌟</h2>
-        <div class="level-container" id="levelContainer"></div>
-        <button class="btn btn-back" id="backToModeFromLevelBtn" style="margin-top: 15px;">BACK</button>
-    </div>
+<script>
+    // ======================== AD CONFIG (from boxtg) ========================
+    const ADSGRAM_BLOCK = "int-24115";
+    const MONETAG_ZONE = "10867497";
+    const ADEXORA_APP_ID = "2025";
 
-    <!-- Normal Game Screen -->
-    <div class="screen" id="gameScreen" style="display:none">
-        <button class="sound-toggle" id="soundGameToggle"><i class="fas fa-volume-up"></i></button>
-        <div class="game-header">
-            <div class="header-item">Level <span id="currentLevel">1</span></div>
-            <div class="header-item">Score <span id="currentScore">0</span></div>
-            <div class="header-item">Moves <span id="currentMoves">0</span></div>
-            <div class="header-item">Goal <span id="currentGoal">500</span></div>
-        </div>
-        <div class="powerups">
-            <div class="powerup"><i class="fas fa-lightbulb"></i> Hints: <span id="hintsLeft">3</span></div>
-            <div class="powerup"><i class="fas fa-random"></i> Shuffles: <span id="shufflesLeft">1</span></div>
-        </div>
-        <div class="game-board" id="gameBoard"></div>
-        <div class="controls">
-            <button class="btn btn-control" id="hintActionBtn">HINT</button>
-            <button class="btn btn-control" id="shuffleActionBtn">SHUFFLE</button>
-            <button class="btn btn-control" id="menuFromGameBtn">MENU</button>
-        </div>
-    </div>
-
-    <!-- AI Game Screen -->
-    <div class="screen" id="aiGameScreen" style="display:none">
-        <div style="display:flex; width:100%; gap:10px; margin-bottom:10px">
-            <div style="flex:1; background:rgba(0,0,0,0.5); padding:10px; border-radius:12px; text-align:center"><div>PLAYER</div><div id="aiPlayerScore">0</div><div>Moves: <span id="aiPlayerMoves">0</span>/20</div></div>
-            <div style="flex:1; background:rgba(0,0,0,0.5); padding:10px; border-radius:12px; text-align:center"><div>AI</div><div id="aiComputerScore">0</div><div>Moves: <span id="aiComputerMoves">0</span>/20</div></div>
-        </div>
-        <div class="game-board" id="aiBoardContainer"></div>
-        <div class="controls"><button class="btn btn-control" id="aiHintBtn">HINT</button><button class="btn btn-control" id="aiShuffleBtn">SHUFFLE</button><button class="btn btn-control" id="aiMenuBtn">MENU</button></div>
-    </div>
-
-    <!-- Record Game Screen -->
-    <div class="screen" id="recordGameScreen" style="display:none">
-        <div class="game-header"><div class="header-item">RECORD MODE</div><div class="header-item">Score <span id="recordScoreVal">0</span></div><div class="header-item">Moves <span id="recordMovesVal">0</span></div><div class="header-item">Best <span id="recordBestVal">0</span></div></div>
-        <div class="game-board" id="recordBoardContainer"></div>
-        <div class="controls"><button class="btn btn-control" id="recordHintBtn">HINT</button><button class="btn btn-control" id="recordShuffleBtn">SHUFFLE</button><button class="btn btn-control" id="recordMenuBtn">MENU</button></div>
-    </div>
-
-    <!-- Popups -->
-    <div class="game-over" id="gameOverPopup"><h2>Game Over!</h2><p>Score: <span id="finalGameScore">0</span></p><button class="btn" id="restartGameBtn">PLAY AGAIN</button><button class="btn btn-back" id="menuFromGameOverBtn">MENU</button></div>
-    <div class="level-complete" id="levelCompletePopup"><h2>Level Complete!</h2><p>Score: <span id="completeLevelScore">0</span></p><button class="btn" id="nextLevelBtn">NEXT LEVEL</button><button class="btn btn-back" id="menuFromCompleteBtn">MENU</button></div>
-    <div class="game-over" id="aiGameOverPopup"><h2 id="aiResultTitle">Game Over</h2><p>Player: <span id="finalPlayerScoreSpan">0</span> AI: <span id="finalAiScoreSpan">0</span></p><button class="btn" id="aiRestartGameBtn">PLAY AGAIN</button><button class="btn btn-back" id="aiMenuFromOverBtn">MENU</button></div>
-    <div class="level-complete" id="recordGameOverPopup"><h2>New High Score!</h2><p>Score: <span id="finalRecordScoreSpan">0</span></p><button class="btn" id="recordRestartBtn">PLAY AGAIN</button><button class="btn btn-back" id="recordMenuFromOverBtn">MENU</button></div>
-
-    <script>
-        // ======================== ADSGRAM (interstitials only) ========================
-        let adController = null;
-        try { if(window.Adsgram) adController = window.Adsgram.init({ blockId: "int-24115" }); } catch(e) {}
-        function showInterstitialAd() { if(adController) adController.show().catch(e=>console.log); }
-        
-        // ======================== SOUND SYSTEM ========================
-        let audioCtx = null;
-        let soundEnabled = true;
-        function initAudio() { if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
-        function playSound(freq, duration, type='sine', volume=0.2) { if (!soundEnabled) return; initAudio(); if (!audioCtx) return; try { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = freq; osc.type = type; gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.01); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + duration); } catch(e) {} }
-        function playSelectSound() { playSound(523.25, 0.1, 'sine', 0.15); }
-        function playBlastSound(size) { if(size >= 7) playSound(880, 0.25, 'square', 0.25); else if(size >= 4) playSound(659.25, 0.2, 'sine', 0.2); else playSound(523.25, 0.15, 'sine', 0.15); }
-        function playComboSound(size) { if(size >= 5) playSound(1046.5, 0.3, 'sine', 0.25); }
-        function playLevelUpSound() { playSound(523.25, 0.1); setTimeout(()=>playSound(659.25, 0.1), 100); setTimeout(()=>playSound(783.99, 0.2), 200); }
-        function playGameOverSound() { playSound(392, 0.3); setTimeout(()=>playSound(349.23, 0.4), 200); }
-        function playHintSound() { playSound(1046.5, 0.15); setTimeout(()=>playSound(1318.51, 0.15), 100); }
-        function playShuffleSound() { for(let i=0;i<3;i++) setTimeout(()=>playSound(300+Math.random()*200, 0.05, 'sawtooth', 0.1), i*60); }
-        function toggleSound() { soundEnabled = !soundEnabled; updateSoundIcons(); if(soundEnabled) playSound(523.25, 0.1); }
-        function updateSoundIcons() { document.querySelectorAll('.sound-toggle i').forEach(icon => { icon.className = soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute'; }); }
-        
-        // Network check
-        let isOnlineFlag = true;
-        window.addEventListener('online',()=>{ isOnlineFlag=true; document.getElementById('networkErrorScreen').style.display='none'; });
-        window.addEventListener('offline',()=>{ isOnlineFlag=false; document.getElementById('networkErrorScreen').style.display='flex'; });
-        
-        // Loading simulation
-        let progress=0; let loadInterval=setInterval(()=>{ progress+=Math.random()*6+2; if(progress>=100){ clearInterval(loadInterval); document.getElementById('loadingScreen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loadingScreen').style.display='none'; document.getElementById('startScreen').style.display='flex'; showInterstitialAd(); },400); } document.getElementById('loadingPercentage').innerText=Math.floor(progress)+'%'; document.getElementById('loadingBar').style.width=progress+'%'; },80);
-        
-        // Game constants
-        const BOARD_SIZE=8, COLORS=6, MIN_GROUP=2, TOTAL_LEVELS=20, POINTS_PER_BLOCK=20;
-        const LEVELS = {};
-        for(let i=1;i<=TOTAL_LEVELS;i++){ LEVELS[i]={ goal: 300 + i*50, moves: 28 - Math.floor(i/2), colors:6 }; }
-        
-        // DOM refs
-        const startScreen=document.getElementById('startScreen'), gameModeScreen=document.getElementById('gameModeScreen'), aiDiffScreen=document.getElementById('aiDifficultyScreen'), recordScreen=document.getElementById('recordScreen'), levelScreen=document.getElementById('levelScreen'), gameScreen=document.getElementById('gameScreen'), aiGameScr=document.getElementById('aiGameScreen'), recordGameScr=document.getElementById('recordGameScreen');
-        const gameBoardDiv=document.getElementById('gameBoard'), levelSpan=document.getElementById('currentLevel'), scoreSpan=document.getElementById('currentScore'), movesSpan=document.getElementById('currentMoves'), goalSpan=document.getElementById('currentGoal'), hintsSpan=document.getElementById('hintsLeft'), shufflesSpan=document.getElementById('shufflesLeft');
-        const gameOverPopup=document.getElementById('gameOverPopup'), levelCompletePopup=document.getElementById('levelCompletePopup'), victoryScreen=document.getElementById('victoryCodeScreen');
-        
-        // Game state
-        let board=[], score=0, moves=0, currentLevel=1, goalScore=500, maxMoves=25, hints=3, shuffles=1, isGameOverFlag=false, processingMove=false;
-        let unlockedLevels = JSON.parse(localStorage.getItem('blockBlastUnlocked')) || [1];
-        let records = JSON.parse(localStorage.getItem('blockBlastRecords')) || [];
-        
-        function saveUnlocked(){ localStorage.setItem('blockBlastUnlocked', JSON.stringify(unlockedLevels)); }
-        function saveRecords(){ localStorage.setItem('blockBlastRecords', JSON.stringify(records)); }
-        
-        function findGroup(grid, sr, sc, color){ let vis=Array(8).fill().map(()=>Array(8).fill(false)); let q=[[sr,sc]], group=[]; vis[sr][sc]=true; while(q.length){ let [r,c]=q.shift(); group.push({row:r,col:c}); [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{ let nr=r+dr, nc=c+dc; if(nr>=0 && nr<8 && nc>=0 && nc<8 && !vis[nr][nc] && grid[nr][nc]===color){ vis[nr][nc]=true; q.push([nr,nc]); } }); } return group; }
-        function hasValidMoves(grid){ for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(findGroup(grid,i,j,grid[i][j]).length>=MIN_GROUP) return true; return false; }
-        function applyGravity(grid){ for(let c=0;c<8;c++){ let empty=0; for(let r=7;r>=0;r--){ if(grid[r][c]===0) empty++; else if(empty>0){ grid[r+empty][c]=grid[r][c]; grid[r][c]=0; } } } }
-        function fillEmptyCells(grid){ for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(grid[i][j]===0) grid[i][j]=Math.floor(Math.random()*COLORS)+1; }
-        function redrawBoard(grid, container){ for(let i=0;i<8;i++) for(let j=0;j<8;j++){ let cell=container.querySelector(`.cell[data-row='${i}'][data-col='${j}']`); if(cell) cell.className=`cell color-${grid[i][j]}`; } }
-        function showCombo(size, pts, container, firstCell){ let div=document.createElement('div'); div.className='combo'; div.innerText=size>=7?`AMAZING! +${pts}`:`+${pts}`; let ref=container.querySelector(`.cell[data-row='${firstCell.row}'][data-col='${firstCell.col}']`); if(ref){ let rect=ref.getBoundingClientRect(), prect=container.getBoundingClientRect(); div.style.left=`${rect.left-prect.left+rect.width/2}px`; div.style.top=`${rect.top-prect.top}px`; container.appendChild(div); setTimeout(()=>div.remove(),1000); } }
-        
-        async function blastGroup(group, isNormal=true){
-            if(group.length===0) return;
-            let pts=group.length*POINTS_PER_BLOCK;
-            if(isNormal){ score+=pts; moves++; scoreSpan.innerText=score; movesSpan.innerText=moves; showCombo(group.length, pts, gameBoardDiv, group[0]); playBlastSound(group.length); if(group.length>=5) playComboSound(group.length); }
-            group.forEach(({row,col})=>{ board[row][col]=0; let cell=gameBoardDiv.querySelector(`.cell[data-row='${row}'][data-col='${col}']`); if(cell) cell.classList.add('blast-animation'); });
-            setTimeout(()=>{ applyGravity(board); fillEmptyCells(board); redrawBoard(board, gameBoardDiv); processingMove=false; if(!hasValidMoves(board) && shuffles>0 && isNormal){ shuffles--; shufflesSpan.innerText=shuffles; shuffleBoard(); } else if(!hasValidMoves(board) && isNormal) endGame(); if(isNormal && score>=goalScore) levelCompleteTrigger(); },400);
+    let adsgramController = null;
+    try {
+        if (typeof window.Adsgram !== 'undefined') {
+            adsgramController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK });
         }
-        
-        function shuffleBoard(){ let flat=[]; for(let i=0;i<8;i++) for(let j=0;j<8;j++) flat.push(board[i][j]); for(let i=flat.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [flat[i],flat[j]]=[flat[j],flat[i]]; } let idx=0; for(let i=0;i<8;i++) for(let j=0;j<8;j++) board[i][j]=flat[idx++]; redrawBoard(board, gameBoardDiv); playShuffleSound(); if(!hasValidMoves(board)) shuffleBoard(); }
-        function showHintNormal(){ if(hints<=0) return; hints--; hintsSpan.innerText=hints; playHintSound(); for(let i=0;i<8;i++) for(let j=0;j<8;j++){ let g=findGroup(board,i,j,board[i][j]); if(g.length>=MIN_GROUP){ g.forEach(({row,col})=>{ let c=gameBoardDiv.querySelector(`.cell[data-row='${row}'][data-col='${col}']`); c.classList.add('selected'); }); setTimeout(()=>{ gameBoardDiv.querySelectorAll('.cell.selected').forEach(c=>c.classList.remove('selected')); },1200); return; } } }
-        function endGame(){ isGameOverFlag=true; gameOverPopup.style.display='flex'; document.getElementById('finalGameScore').innerText=score; playGameOverSound(); showInterstitialAd(); }
-        function levelCompleteTrigger(){ playLevelUpSound(); if(currentLevel===TOTAL_LEVELS){ let victoryCode = Math.random().toString(36).substring(2,8).toUpperCase() + '-' + Math.floor(Math.random()*10000); document.getElementById('victoryCodeDisplay').innerText=victoryCode; victoryScreen.style.display='flex'; showInterstitialAd(); return; } levelCompletePopup.style.display='flex'; document.getElementById('completeLevelScore').innerText=score; unlockNextLevel(); showInterstitialAd(); }
-        function unlockNextLevel(){ let nxt=currentLevel+1; if(nxt<=TOTAL_LEVELS && !unlockedLevels.includes(nxt)){ unlockedLevels.push(nxt); saveUnlocked(); } }
-        function goToNextLevel(){ if(currentLevel<TOTAL_LEVELS){ levelCompletePopup.style.display='none'; startGame(currentLevel+1); } }
-        function restartGame(){ gameOverPopup.style.display='none'; levelCompletePopup.style.display='none'; startGame(currentLevel); }
-        function resetGameToInitial(){ localStorage.removeItem('blockBlastUnlocked'); localStorage.removeItem('blockBlastRecords'); unlockedLevels=[1]; records=[]; saveUnlocked(); saveRecords(); generateLevelButtons(); loadRecordsUI(); startScreen.style.display='flex'; gameScreen.style.display='none'; victoryScreen.style.display='none'; currentLevel=1; }
-        
-        function startGame(level){ currentLevel=level; goalScore=LEVELS[level].goal; maxMoves=LEVELS[level].moves; score=0; moves=0; hints=3; shuffles=1; isGameOverFlag=false; processingMove=false; levelSpan.innerText=level; scoreSpan.innerText=0; movesSpan.innerText=0; goalSpan.innerText=goalScore; hintsSpan.innerText=3; shufflesSpan.innerText=1; gameScreen.style.display='flex'; levelScreen.style.display='none'; board=[]; gameBoardDiv.innerHTML=''; for(let i=0;i<8;i++){ board[i]=[]; for(let j=0;j<8;j++){ let col=Math.floor(Math.random()*COLORS)+1; board[i][j]=col; let cell=document.createElement('div'); cell.classList.add('cell',`color-${col}`); cell.dataset.row=i; cell.dataset.col=j; gameBoardDiv.appendChild(cell); } } if(!hasValidMoves(board)) shuffleBoard(); playSelectSound(); }
-        
-        // BEAUTIFUL LEVEL GENERATION with groups
-        function generateLevelButtons(){
-            let container=document.getElementById('levelContainer');
-            container.innerHTML='';
-            let groups = [[1,5,"🌱 BEGINNER","#4CAF50"],[6,10,"⚡ ADVANCED","#FF9800"],[11,15,"🔥 EXPERT","#FF5722"],[16,20,"👑 MASTER","#9C27B0"]];
-            for(let g of groups){
-                let [start,end,title,color]=g;
-                let groupDiv=document.createElement('div'); groupDiv.className='level-group';
-                groupDiv.innerHTML=`<div class="group-title" style="text-shadow:0 0 5px ${color};">${title}</div><div class="level-row" id="row-${start}"></div>`;
-                let rowDiv=groupDiv.querySelector('.level-row');
-                for(let i=start;i<=end;i++){
-                    let btn=document.createElement('button');
-                    btn.innerText=i; btn.classList.add('btn','btn-level-small');
-                    if(!unlockedLevels.includes(i)){ btn.classList.add('locked'); btn.disabled=true; let lock=document.createElement('i'); lock.className='fas fa-lock lock-icon'; btn.appendChild(lock); }
-                    let badge=document.createElement('span'); badge.className='level-badge'; badge.innerText=i<=10?'⭐':'🔥';
-                    btn.appendChild(badge);
-                    btn.onclick=()=>{ if(!btn.disabled && isOnlineFlag) startGame(i); };
-                    rowDiv.appendChild(btn);
+    } catch(e) { console.warn("Adsgram init error", e); }
+
+    // Real ad functions (no simulation)
+    async function showRealAdsgram() {
+        if (!adsgramController) return false;
+        try {
+            const result = await adsgramController.show();
+            return !!(result && result.done);
+        } catch(e) { return false; }
+    }
+    async function showRealMonetag() {
+        if (typeof window.show_10867497 === 'function') {
+            try { await window.show_10867497(); return true; }
+            catch(e) { return false; }
+        }
+        return false;
+    }
+    async function showRealAdexora() {
+        if (typeof window.showAdexora === 'function') {
+            try { await window.showAdexora(); return true; }
+            catch(e) { return false; }
+        }
+        return false;
+    }
+
+    // Retry UI (exactly from boxtg pattern)
+    async function showAdWithRetry(adName, adFunction) {
+        return new Promise((resolve) => {
+            const modalContent = document.getElementById('modalDynamicContent');
+            const renderRetry = () => {
+                modalContent.innerHTML = `
+                    <div><i class="fas fa-exclamation-triangle ad-icon-large" style="color:#ff8888;"></i></div>
+                    <h3 style="color:#FFD700;">${adName} Ad Failed</h3>
+                    <p style="color:#ffaaaa;">Could not load ad. Please retry.</p>
+                    <button id="retryAdBtn" class="btn-modal">🔄 RETRY</button>
+                    <p style="font-size:12px; margin-top:10px;">Click retry to attempt again</p>
+                `;
+                const retryBtn = document.getElementById('retryAdBtn');
+                if (retryBtn) {
+                    retryBtn.onclick = async () => {
+                        const success = await adFunction();
+                        if (success) resolve(true);
+                        else renderRetry();
+                    };
                 }
-                container.appendChild(groupDiv);
+            };
+            adFunction().then(success => {
+                if (success) resolve(true);
+                else renderRetry();
+            }).catch(() => renderRetry());
+        });
+    }
+
+    // ======================== GAME LOGIC ========================
+    const TOTAL_LEVELS = 10;
+    let unlockedLevels = [1];
+    let completedLevels = [];
+    let currentPlayingLevel = null;
+    let clickStates = [false, false, false, false, false];
+    let isInAdFlow = false;
+    let currentFlowStep = 0;  // 0: Adsgram, 1: Monetag, 2: (Adexora or second Adsgram)
+    let pendingLevel = null;
+
+    function showToast(msg, duration=1800) {
+        const toast = document.getElementById('toastMsg');
+        toast.innerText = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', duration);
+    }
+
+    function isBreakLevel(level) {
+        return (level === 3 || level === 6 || level === 9);
+    }
+
+    function saveProgress() {
+        localStorage.setItem('boxblast_unlocked', JSON.stringify(unlockedLevels));
+        localStorage.setItem('boxblast_completed', JSON.stringify(completedLevels));
+    }
+
+    function loadProgress() {
+        const savedUnlocked = localStorage.getItem('boxblast_unlocked');
+        const savedCompleted = localStorage.getItem('boxblast_completed');
+        if (savedUnlocked) {
+            try { unlockedLevels = JSON.parse(savedUnlocked); } catch(e) {}
+        }
+        if (savedCompleted) {
+            try { completedLevels = JSON.parse(savedCompleted); } catch(e) {}
+        }
+        if (!unlockedLevels.length) unlockedLevels = [1];
+        unlockedLevels = [...new Set(unlockedLevels.filter(l => l>=1 && l<=TOTAL_LEVELS))];
+        completedLevels = [...new Set(completedLevels.filter(l => l>=1 && l<=TOTAL_LEVELS))];
+        if (!unlockedLevels.includes(1)) unlockedLevels.push(1);
+    }
+
+    function renderLevels() {
+        const container = document.getElementById('levelContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        const groups = [[1,5,"🌟 BEGINNER BLAST","#FFB347"],[6,10,"⚡ MASTER EXPLOSION","#FF6B00"]];
+        for (let [start, end, title, color] of groups) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'level-group';
+            groupDiv.innerHTML = `<div class="group-title" style="text-shadow:0 0 3px ${color};">${title}</div><div class="level-row" id="row-${start}"></div>`;
+            const row = groupDiv.querySelector('.level-row');
+            for (let lvl = start; lvl <= end; lvl++) {
+                const isUnlocked = unlockedLevels.includes(lvl);
+                const isCompleted = completedLevels.includes(lvl);
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                btn.innerText = lvl;
+                if (!isUnlocked) {
+                    btn.classList.add('locked');
+                    const lockIcon = document.createElement('i');
+                    lockIcon.className = 'fas fa-lock lock-icon';
+                    btn.appendChild(lockIcon);
+                } else if (isCompleted) {
+                    btn.classList.add('completed');
+                    const checkSpan = document.createElement('span');
+                    checkSpan.className = 'check-icon';
+                    checkSpan.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.appendChild(checkSpan);
+                } else {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (isInAdFlow) { showToast("Please wait, ad in progress"); return; }
+                        startAdFlowForLevel(lvl);
+                    };
+                }
+                row.appendChild(btn);
+            }
+            container.appendChild(groupDiv);
+        }
+    }
+
+    // ======================== AD FLOW (3 ads with break pattern) ========================
+    const adModal = document.getElementById('adModal');
+    const modalDynamic = document.getElementById('modalDynamicContent');
+
+    function closeAdModal() {
+        adModal.classList.remove('active');
+        isInAdFlow = false;
+        currentFlowStep = 0;
+        pendingLevel = null;
+    }
+
+    function showModalStep(stepIndex) {
+        const level = pendingLevel;
+        const needAdexora = !isBreakLevel(level);
+        if (stepIndex === 0) {
+            modalDynamic.innerHTML = `
+                <div><i class="fas fa-ad ad-icon-large"></i></div>
+                <h3 style="color:#FFD700;">AdsGram Ad (1/3)</h3>
+                <p>Watch to continue</p>
+                <button id="stepAdBtn" class="btn-modal">📺 WATCH ADSGRAM</button>
+            `;
+            const btn = document.getElementById('stepAdBtn');
+            btn.onclick = async () => {
+                const success = await showAdWithRetry("AdsGram", showRealAdsgram);
+                if (success) showModalStep(1);
+                else { closeAdModal(); showToast("Ad flow cancelled"); }
+            };
+        } 
+        else if (stepIndex === 1) {
+            modalDynamic.innerHTML = `
+                <div><i class="fas fa-coins ad-icon-large" style="color:#FFD700;"></i></div>
+                <h3 style="color:#FFD700;">Monetag Ad (2/3)</h3>
+                <p>Rewarded interstitial</p>
+                <button id="stepAdBtn" class="btn-modal">🎬 SHOW MONETAG</button>
+            `;
+            const btn = document.getElementById('stepAdBtn');
+            btn.onclick = async () => {
+                const success = await showAdWithRetry("Monetag", showRealMonetag);
+                if (success) showModalStep(2);
+                else { closeAdModal(); showToast("Ad flow cancelled"); }
+            };
+        }
+        else if (stepIndex === 2) {
+            if (needAdexora) {
+                modalDynamic.innerHTML = `
+                    <div><i class="fas fa-chart-line ad-icon-large" style="color:#4CAF50;"></i></div>
+                    <h3 style="color:#FFD700;">Adexora Ad (3/3)</h3>
+                    <p>Final ad before level</p>
+                    <button id="stepAdBtn" class="btn-modal">▶️ SHOW ADEXORA</button>
+                `;
+                const btn = document.getElementById('stepAdBtn');
+                btn.onclick = async () => {
+                    const success = await showAdWithRetry("Adexora", showRealAdexora);
+                    if (success) finishAdFlowAndStartGame();
+                    else { closeAdModal(); showToast("Ad flow failed"); }
+                };
+            } else {
+                // break level: second Adsgram instead of Adexora
+                modalDynamic.innerHTML = `
+                    <div><i class="fas fa-ad ad-icon-large" style="color:#FF9800;"></i></div>
+                    <h3 style="color:#FFD700;">Extra AdsGram (3/3)</h3>
+                    <p>Double explosion mode</p>
+                    <button id="stepAdBtn" class="btn-modal">📺 SHOW SECOND ADSGRAM</button>
+                `;
+                const btn = document.getElementById('stepAdBtn');
+                btn.onclick = async () => {
+                    const success = await showAdWithRetry("AdsGram (2nd)", showRealAdsgram);
+                    if (success) finishAdFlowAndStartGame();
+                    else { closeAdModal(); showToast("Second Adsgram failed"); }
+                };
             }
         }
-        
-        function loadRecordsUI(){ let listDiv=document.getElementById('recordList'); listDiv.innerHTML=''; records.sort((a,b)=>b.score-a.score); records.slice(0,10).forEach(r=>{ let div=document.createElement('div'); div.className='record-item'; div.innerHTML=`<span>${r.score} pts</span><span>${r.moves} moves</span>`; listDiv.appendChild(div); }); if(records.length===0) listDiv.innerHTML='<div class="record-item">No records yet</div>'; let best=records.length?records[0].score:0; document.getElementById('recordBestVal') && (document.getElementById('recordBestVal').innerText=best); }
-        function saveRecordScore(scr, mvs){ records.push({score:scr, moves:mvs, date:Date.now()}); records.sort((a,b)=>b.score-a.score); if(records.length>10) records=records.slice(0,10); saveRecords(); loadRecordsUI(); }
-        
-        // Record Mode
-        let recordBoardArr=[], recordScoreVal=0, recordMovesVal=0;
-        function startRecordGame(){ recordScoreVal=0; recordMovesVal=0; document.getElementById('recordScoreVal').innerText='0'; document.getElementById('recordMovesVal').innerText='0'; recordBoardArr=[]; let container=document.getElementById('recordBoardContainer'); container.innerHTML=''; for(let i=0;i<8;i++){ recordBoardArr[i]=[]; for(let j=0;j<8;j++){ let col=Math.floor(Math.random()*6)+1; recordBoardArr[i][j]=col; let cell=document.createElement('div'); cell.classList.add('cell',`color-${col}`); cell.dataset.row=i; cell.dataset.col=j; container.appendChild(cell); } } recordScreen.style.display='none'; recordGameScr.style.display='flex'; }
-        function handleRecordClick(e){ let cell=e.target.closest('.cell'); if(!cell) return; let r=parseInt(cell.dataset.row), c=parseInt(cell.dataset.col); let group=findGroup(recordBoardArr,r,c,recordBoardArr[r][c]); if(group.length>=MIN_GROUP){ let pts=group.length*POINTS_PER_BLOCK; recordScoreVal+=pts; recordMovesVal++; document.getElementById('recordScoreVal').innerText=recordScoreVal; document.getElementById('recordMovesVal').innerText=recordMovesVal; playBlastSound(group.length); group.forEach(({row,col})=>{ recordBoardArr[row][col]=0; let bc=document.getElementById('recordBoardContainer').querySelector(`.cell[data-row='${row}'][data-col='${col}']`); if(bc) bc.classList.add('blast-animation'); }); setTimeout(()=>{ applyGravity(recordBoardArr); fillEmptyCells(recordBoardArr); redrawBoard(recordBoardArr, document.getElementById('recordBoardContainer')); if(recordScoreVal > (records[0]?.score||0)){ document.getElementById('recordBestVal').innerText=recordScoreVal; saveRecordScore(recordScoreVal, recordMovesVal); } },400); } }
-        function startAIGame(diff){ alert("AI Mode: Challenge the computer! (full feature available)"); }
-        
-        // Event Listeners
-        document.getElementById('startGameBtn').onclick=()=>{ playSelectSound(); gameModeScreen.style.display='flex'; startScreen.style.display='none'; };
-        document.getElementById('normalSelectBtn').onclick=()=>{ playSelectSound(); levelScreen.style.display='flex'; gameModeScreen.style.display='none'; generateLevelButtons(); };
-        document.getElementById('backToStartModeBtn').onclick=()=>{ playSelectSound(); startScreen.style.display='flex'; gameModeScreen.style.display='none'; };
-        document.getElementById('backToModeFromLevelBtn').onclick=()=>{ playSelectSound(); gameModeScreen.style.display='flex'; levelScreen.style.display='none'; };
-        document.getElementById('aiGameBtn').onclick=()=>{ playSelectSound(); aiDiffScreen.style.display='flex'; startScreen.style.display='none'; };
-        document.getElementById('easyAiBtn').onclick=()=>{ playSelectSound(); startAIGame('easy'); };
-        document.getElementById('mediumAiBtn').onclick=()=>{ playSelectSound(); startAIGame('medium'); };
-        document.getElementById('hardAiBtn').onclick=()=>{ playSelectSound(); startAIGame('hard'); };
-        document.getElementById('backToModeFromAiBtn').onclick=()=>{ playSelectSound(); gameModeScreen.style.display='flex'; aiDiffScreen.style.display='none'; };
-        document.getElementById('recordModeMainBtn').onclick=()=>{ playSelectSound(); recordScreen.style.display='flex'; startScreen.style.display='none'; loadRecordsUI(); };
-        document.getElementById('recordSelectBtn').onclick=()=>{ playSelectSound(); recordScreen.style.display='flex'; gameModeScreen.style.display='none'; loadRecordsUI(); };
-        document.getElementById('startRecordModeBtn').onclick=startRecordGame;
-        document.getElementById('backToStartRecordBtn').onclick=()=>{ playSelectSound(); startScreen.style.display='flex'; recordScreen.style.display='none'; };
-        document.getElementById('aiSelectBtn').onclick=()=>{ playSelectSound(); aiDiffScreen.style.display='flex'; gameModeScreen.style.display='none'; };
-        document.getElementById('hintActionBtn').onclick=showHintNormal;
-        document.getElementById('shuffleActionBtn').onclick=()=>{ if(shuffles>0 && !isGameOverFlag){ shuffles--; shufflesSpan.innerText=shuffles; shuffleBoard(); } };
-        document.getElementById('menuFromGameBtn').onclick=()=>{ playSelectSound(); startScreen.style.display='flex'; gameScreen.style.display='none'; };
-        document.getElementById('restartGameBtn').onclick=restartGame;
-        document.getElementById('menuFromGameOverBtn').onclick=()=>{ playSelectSound(); startScreen.style.display='flex'; gameOverPopup.style.display='none'; };
-        document.getElementById('nextLevelBtn').onclick=goToNextLevel;
-        document.getElementById('menuFromCompleteBtn').onclick=()=>{ playSelectSound(); startScreen.style.display='flex'; levelCompletePopup.style.display='none'; };
-        document.getElementById('recordBoardContainer').addEventListener('click', handleRecordClick);
-        document.getElementById('copyFinalCodeBtn').onclick=()=>{ let code=document.getElementById('victoryCodeDisplay').innerText; navigator.clipboard.writeText(code); let msg=document.getElementById('copyMsg'); msg.style.opacity='1'; playSelectSound(); setTimeout(()=>{ msg.style.opacity='0'; victoryScreen.style.display='none'; resetGameToInitial(); },1500); };
-        document.getElementById('gameBoard').addEventListener('click',(e)=>{ let cell=e.target.closest('.cell'); if(!cell || isGameOverFlag || processingMove) return; let r=parseInt(cell.dataset.row), c=parseInt(cell.dataset.col); let group=findGroup(board,r,c,board[r][c]); if(group.length>=MIN_GROUP){ playSelectSound(); processingMove=true; group.forEach(({row,col})=>{ let sel=gameBoardDiv.querySelector(`.cell[data-row='${row}'][data-col='${col}']`); if(sel) sel.classList.add('selected'); }); setTimeout(()=>{ blastGroup(group,true); gameBoardDiv.querySelectorAll('.cell.selected').forEach(c=>c.classList.remove('selected')); },100); } });
-        document.querySelectorAll('.sound-toggle').forEach(btn=>btn.addEventListener('click',toggleSound));
-        document.getElementById('retryBtn').onclick=()=>{ if(navigator.onLine) location.reload(); };
-        
-        generateLevelButtons(); loadRecordsUI(); updateSoundIcons();
-    </script>
+    }
+
+    async function finishAdFlowAndStartGame() {
+        closeAdModal();
+        if (!pendingLevel) return;
+        // start gameplay with 5 click buttons
+        currentPlayingLevel = pendingLevel;
+        clickStates = [false, false, false, false, false];
+        openGameplayPanel();
+    }
+
+    function startAdFlowForLevel(levelNum) {
+        if (completedLevels.includes(levelNum)) {
+            showToast("Stage already completed!");
+            return;
+        }
+        if (!unlockedLevels.includes(levelNum)) {
+            showToast("Locked! Complete previous stage.");
+            return;
+        }
+        if (isInAdFlow) return;
+        isInAdFlow = true;
+        pendingLevel = levelNum;
+        currentFlowStep = 0;
+        adModal.classList.add('active');
+        showModalStep(0);
+    }
+
+    // ======================== GAMEPLAY: 5 CLICK BUTTONS ========================
+    const gameplayPanel = document.getElementById('gameplayPanel');
+    const clicksGrid = document.getElementById('clicksGrid');
+    const gameProgressSpan = document.getElementById('gameProgress');
+    const gameLevelTitleSpan = document.getElementById('gameLevelTitle');
+
+    function openGameplayPanel() {
+        if (!currentPlayingLevel) return;
+        gameLevelTitleSpan.innerText = `💥 STAGE ${currentPlayingLevel} 💥`;
+        renderClickButtons();
+        gameplayPanel.classList.add('active');
+    }
+
+    function renderClickButtons() {
+        const clickedCount = clickStates.filter(v => v === true).length;
+        gameProgressSpan.innerText = `${clickedCount} / 5 CLICKS`;
+        clicksGrid.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'click-btn';
+            if (clickStates[i]) {
+                btn.classList.add('disabled');
+                btn.innerText = '✅ CLICK';
+                btn.disabled = true;
+            } else {
+                btn.innerText = '💣 CLICK';
+            }
+            btn.onclick = () => {
+                if (clickStates[i]) return;
+                clickStates[i] = true;
+                renderClickButtons();
+                if (clickStates.every(v => v === true)) {
+                    // level completed!
+                    completeLevelAndUnlockNext();
+                }
+            };
+            clicksGrid.appendChild(btn);
+        }
+    }
+
+    async function completeLevelAndUnlockNext() {
+        const levelCompleted = currentPlayingLevel;
+        if (completedLevels.includes(levelCompleted)) {
+            closeGameplayPanel();
+            showToast("Already completed!");
+            return;
+        }
+        // mark completed
+        completedLevels.push(levelCompleted);
+        const nextLevel = levelCompleted + 1;
+        if (nextLevel <= TOTAL_LEVELS && !unlockedLevels.includes(nextLevel)) {
+            unlockedLevels.push(nextLevel);
+            unlockedLevels.sort((a,b)=>a-b);
+            showToast(`🎉 Stage ${levelCompleted} cleared! Unlocked Stage ${nextLevel}`);
+        } else if (nextLevel <= TOTAL_LEVELS) {
+            showToast(`✅ Stage ${levelCompleted} completed!`);
+        } else if (levelCompleted === TOTAL_LEVELS) {
+            showToast("🏆 ALL STAGES DONE! Reward unlocked!");
+        } else {
+            showToast(`Stage ${levelCompleted} done!`);
+        }
+        saveProgress();
+        renderLevels();
+        closeGameplayPanel();
+
+        if (levelCompleted === TOTAL_LEVELS) {
+            showVictoryReward();
+        }
+    }
+
+    function closeGameplayPanel() {
+        gameplayPanel.classList.remove('active');
+        currentPlayingLevel = null;
+    }
+
+    function showVictoryReward() {
+        const code = `BLAST-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+        document.getElementById('rewardCodeDisplay').innerText = code;
+        document.getElementById('victoryScreen').classList.add('active');
+    }
+
+    function fullReset() {
+        unlockedLevels = [1];
+        completedLevels = [];
+        saveProgress();
+        renderLevels();
+        closeGameplayPanel();
+        closeAdModal();
+        document.getElementById('victoryScreen').classList.remove('active');
+        showToast("Game reset! Stage 1 unlocked.");
+    }
+
+    // copy & reset from victory screen
+    function copyAndReset() {
+        const code = document.getElementById('rewardCodeDisplay').innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            showToast("✅ Code copied! Resetting game.");
+            fullReset();
+        }).catch(() => {
+            fullReset();
+        });
+    }
+
+    // ======================== LOADING & INIT ========================
+    let loadProgressVal = 0;
+    const loadingInterval = setInterval(() => {
+        loadProgressVal += Math.random() * 12 + 5;
+        if (loadProgressVal >= 100) {
+            clearInterval(loadingInterval);
+            document.getElementById('loadingScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainGameScreen').style.display = 'block';
+            }, 300);
+        }
+        document.getElementById('loadingBar').style.width = Math.min(100, loadProgressVal) + '%';
+        document.getElementById('loadingPercent').innerText = Math.floor(Math.min(100, loadProgressVal)) + '%';
+    }, 80);
+
+    // Event binding
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProgress();
+        renderLevels();
+        document.getElementById('exitGameBtn').addEventListener('click', () => {
+            closeGameplayPanel();
+        });
+        document.getElementById('resetAllBtn').addEventListener('click', () => {
+            if (confirm("⚠️ Reset all progress? You'll start from Stage 1.")) fullReset();
+        });
+        document.getElementById('copyAndResetBtn').addEventListener('click', copyAndReset);
+        // close modal on outside click? optional
+        adModal.addEventListener('click', (e) => {
+            if (e.target === adModal) {
+                closeAdModal();
+                showToast("Ad flow cancelled");
+            }
+        });
+    });
+</script>
 </body>
 </html>
